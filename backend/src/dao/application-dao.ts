@@ -16,8 +16,7 @@ export class ApplicationDao {
         street TEXT NOT NULL,
         city TEXT NOT NULL,
         state TEXT NOT NULL,
-        zipCode TEXT NOT NULL,
-        vehicles TEXT NOT NULL
+        zipCode TEXT NOT NULL
       )
     `;
     this.db.exec(sql);
@@ -26,7 +25,7 @@ export class ApplicationDao {
   public async addApplication(application: ApplicationModel): Promise<number> {
     return new Promise<number>((resolve, reject) => {
       const sql =
-        "INSERT INTO applications (firstName, lastName, dob, street, city, state, zipCode, vehicles) " +
+        "INSERT INTO applications (firstName, lastName, dob, street, city, state, zipCode) " +
         "VALUES (?, ?, ?, ?, ?, ?, ?)";
       const values = [
         application.getFirstName(),
@@ -47,20 +46,19 @@ export class ApplicationDao {
     });
   }
 
-  public async getApplication(id: string): Promise<ApplicationModel | null> {
+  public async getApplicationByName(lastName: string): Promise<ApplicationModel | null> {
     return new Promise<ApplicationModel | null>((resolve, reject) => {
       const sql =
         "SELECT id, firstName, lastName, dob, street, city, state, zipCode " +
         "FROM applications " +
-        "WHERE id = ?";
-      this.db.get(sql, [id], (err, row) => {
+        "WHERE lastName = ?";
+      this.db.get(sql, [lastName], (err, row) => {
         if (err) {
           reject(err);
         } else if (!row) {
           resolve(null);
         } else {
-          let x = 9;
-          //resolve(new ApplicationModel(row));
+          resolve(row);
         }
       });
     });

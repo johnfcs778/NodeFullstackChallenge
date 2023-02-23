@@ -1,6 +1,7 @@
 import express from 'express';
 import { ApplicationDao } from '../dao/application-dao.js';
-import ApplicationModel from '../models/Application.js'
+import ApplicationModel, {Address} from '../models/Application.js'
+import { generateQueryString } from '../Utilities/QueryHelper.js';
 
 const router = express.Router();
 const dao = new ApplicationDao('application_db.db');
@@ -12,9 +13,9 @@ router.get('/applications', (req, res) => {
 
 
 // GET /api/applications/:id - get an application by id
-router.get('/applications/:id', async (req, res) => {
+router.get('/applications/:lastName', async (req, res) => {
   try {
-    const application = await dao.getApplication(req.params.id);
+    const application = await dao.getApplicationByName(req.params.lastName);
     res.json(application);
   } catch (err) {
     console.error(`Error retrieving application: ${err}`);
@@ -22,15 +23,33 @@ router.get('/applications/:id', async (req, res) => {
   }
 });
 
+// POST /applications
+router.post('/applications', async (req, res) => {
+  const data = req.body;
+  console.log(data)
+  const address: Address = { street: data.street, city: data.city, zipCode: data.zip, state: data.state}
+  const application = new ApplicationModel(data.firstName, data.lastName, data.dob, address);
+  console.log(application);
+  const id = await dao.addApplication(application);
+  if (id) {
+    res.type('text/plain')
+    res.send("localhost:3000/application"+generateQueryString(application))
+    //res.json(generateQueryString(application));
+  } else {
+    res.sendStatus(500);
+  }
+});
+
 // PUT /api/applications/:id - update an application by id
 router.put('/applications/:id', async (req, res) => {
   try {
+    const data = req.body;
+    const address: Address = { street: data.street, city: data.city, zipCode: data.zipCode, state: data.state}
     const application = new ApplicationModel(
-      req.body.firstName,
-      req.body.lastName,
-      req.body.dateOfBirth,
-      req.body.address,
-      req.body.vehicles
+      data.firstName,
+      data.lastName,
+      data.dob,
+      address
     );
     await dao.updateApplication(req.params.id, application);
     res.status(204).send();

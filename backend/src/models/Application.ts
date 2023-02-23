@@ -1,4 +1,4 @@
-interface Address {
+  export interface Address {
     street: string;
     city: string;
     state: string;
@@ -15,16 +15,16 @@ interface Address {
   class ApplicationModel {
     private firstName: string;
     private lastName: string;
-    private dateOfBirth: Date;
+    private dob: Date;
     private address: Address;
-    private vehicles: Vehicle[];
+    //private vehicles: Vehicle[];
   
-    constructor(firstName: string, lastName: string, dateOfBirth: Date, address: Address, vehicles: Vehicle[]) {
+    constructor(firstName: string, lastName: string, dob: Date, address: Address) {
       this.firstName = firstName;
       this.lastName = lastName;
-      this.dateOfBirth = dateOfBirth;
+      this.dob = dob;
       this.address = address;
-      this.vehicles = vehicles;
+      //this.vehicles = vehicles;
     }
   
     getFirstName(): string {
@@ -44,11 +44,11 @@ interface Address {
     }
   
     getDateOfBirth(): Date {
-      return this.dateOfBirth;
+      return this.dob;
     }
   
     setDateOfBirth(dateOfBirth: Date): void {
-      this.dateOfBirth = dateOfBirth;
+      this.dob = dateOfBirth;
     }
   
     getAddress(): Address {
@@ -59,13 +59,13 @@ interface Address {
       this.address = address;
     }
   
-    getVehicles(): Vehicle[] {
-      return this.vehicles;
-    }
+    // getVehicles(): Vehicle[] {
+    //   return this.vehicles;
+    // }
   
-    setVehicles(vehicles: Vehicle[]): void {
-      this.vehicles = vehicles;
-    }
+    // setVehicles(vehicles: Vehicle[]): void {
+    //   this.vehicles = vehicles;
+    // }
   }
   
   export default ApplicationModel;
