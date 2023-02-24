@@ -1,5 +1,9 @@
+/**
+ *  This file defines a data access object for performing database operations
+ *  Author: John Fahnestock
+ */
 import sqlite3 from "sqlite3";
-import  ApplicationModel  from '../models/Application.js'
+import ApplicationModel from '../models/Application.js'
 import { Vehicle } from "../models/Application.js";
 
 export class ApplicationDao {
@@ -8,6 +12,7 @@ export class ApplicationDao {
   constructor(dbFilePath: string) {
     this.db = new sqlite3.Database(dbFilePath);
 
+    // Initialize the database
     const sql = `
       CREATE TABLE IF NOT EXISTS applications (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,6 +37,7 @@ export class ApplicationDao {
     this.db.exec(sql);
   }
 
+  // Given a vehicle list, insert them into the database
   public async addVehicles(vehicles: Vehicle[]): Promise<string[]> {
     return new Promise<string[]>((resolve, reject) => {
       const sql =
@@ -40,7 +46,7 @@ export class ApplicationDao {
 
       let insertedIds: string[] = [];
       let i = 0;
-      for(const vehicle of vehicles) {
+      for (const vehicle of vehicles) {
         const values = [
           vehicle.vin,
           vehicle.year,
@@ -49,21 +55,23 @@ export class ApplicationDao {
 
         ]
         this.db.run(sql, values, function (err) {
-          if(err) {
+          if (err) {
             reject(err);
           } else {
             i++
             insertedIds.push(this.lastID.toString())
-            if(i == vehicles.length) {
+            if (i == vehicles.length) {
+              // Return the ids of the vehicles that were inserted
               resolve(insertedIds)
             }
           }
         })
       }
-     
+
     });
   }
 
+  // Return a vehicle object given its id
   public async getVehicleByID(id: string): Promise<Vehicle | null> {
     return new Promise<Vehicle | null>((resolve, reject) => {
       const sql =
@@ -76,12 +84,13 @@ export class ApplicationDao {
         } else if (!row) {
           resolve(null);
         } else {
-          resolve({vin: row.vin, year: row.year, make: row.make, model: row.model});
+          resolve({ vin: row.vin, year: row.year, make: row.make, model: row.model });
         }
       });
     });
   }
 
+  // Return a Vehicle's ID given its VIN number
   public async getVehicleIDByVIN(vin: string): Promise<string | null> {
     return new Promise<string | null>((resolve, reject) => {
       const sql =
@@ -100,7 +109,7 @@ export class ApplicationDao {
     });
   }
 
-
+  // Add a new application to the database given an ApplicationModel
   public async addApplication(application: ApplicationModel): Promise<number> {
     return new Promise<number>((resolve, reject) => {
       const sql =
@@ -126,6 +135,7 @@ export class ApplicationDao {
     });
   }
 
+  // Get an application from the database by last name
   public async getApplicationByName(lastName: string): Promise<ApplicationModel | null> {
     return new Promise<ApplicationModel | null>((resolve, reject) => {
       const sql =
@@ -144,19 +154,15 @@ export class ApplicationDao {
     });
   }
 
-  
+  // Update an application given a first and last name
   public async updateApplicationByFirstLastName(firstName: string, lastName: string, application: ApplicationModel, vehicles: Vehicle[]): Promise<string> {
     const sql =
-        "UPDATE applications SET firstName = ?, lastName = ?, dob = ?, street = ?, city = ?, zipCode = ?, state = ? " +
-        "WHERE firstName = ? AND lastName = ?";
+      "UPDATE applications SET firstName = ?, lastName = ?, dob = ?, street = ?, city = ?, zipCode = ?, state = ? " +
+      "WHERE firstName = ? AND lastName = ?";
 
-    const sqlVehicles = 
-    "UPDATE vehicles SET vin = ?, year = ?, make = ?, model = ? " +
-    "WHERE id = ? ";
-
-    const valuesVehicles = [
-
-    ]
+    const sqlVehicles =
+      "UPDATE vehicles SET vin = ?, year = ?, make = ?, model = ? " +
+      "WHERE id = ? ";
 
     const valuesApp = [
       application.getFirstName(),
@@ -171,11 +177,12 @@ export class ApplicationDao {
     ];
 
 
+    // For the vehicles to update check if any exist, if so update the existing entry
+    // Otherwise add the new vehicle to the vehicles table
     let vehiclesToAdd: Vehicle[] = []
-    for(let vehicle of vehicles) {
-      console.log(vehicle.vin)
+    for (let vehicle of vehicles) {
       const id = await this.getVehicleIDByVIN(vehicle.vin);
-      if(id) {
+      if (id) {
         this.db.run(sqlVehicles, [
           vehicle.vin,
           vehicle.year,
@@ -183,7 +190,7 @@ export class ApplicationDao {
           vehicle.model,
           id
         ], function (err) {
-          if(err) {
+          if (err) {
             console.log(err);
           }
         })
@@ -192,10 +199,10 @@ export class ApplicationDao {
       }
     }
 
-    if(vehiclesToAdd.length > 0) {
+    if (vehiclesToAdd.length > 0) {
       await this.addVehicles(vehiclesToAdd);
     }
-    
+
     return new Promise<string>((resolve, reject) => {
       this.db.run(sql, valuesApp, function (err) {
         if (err) {
@@ -205,10 +212,11 @@ export class ApplicationDao {
         }
       });
     });
-   
-  }
-  
 
+  }
+
+
+  // Close the DB connection
   public close(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       this.db.close((err) => {
@@ -220,5 +228,5 @@ export class ApplicationDao {
       });
     });
   }
-  
+
 }
