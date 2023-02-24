@@ -12,4 +12,4 @@
 - The frontend application should be available at `localhost:3000/application`
 
 ## DEMO:
-[Video Demo]([https://duckduckgo.com](https://www.youtube.com/watch?v=aGyvDUow5nE))
+[Video Demo](https://www.youtube.com/watch?v=aGyvDUow5nE)
