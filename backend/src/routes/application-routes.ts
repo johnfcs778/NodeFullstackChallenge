@@ -52,17 +52,33 @@ router.post('/applications', async (req, res) => {
   }
 });
 
-// POST /applications/price
-router.post('/applications/price', async (req, res) => {
+// POST /applications/validate
+router.post('/applications/validate', async (req, res) => {
   const data = req.body;
   const address: Address = { street: data.street, city: data.city, zipCode: data.zip, state: data.state}
   const vehicles: Vehicle[] = data.vehicles.map((item: Vehicle) => {
     return {vin: item.vin, year: item.year.toString(), make: item.make, model: item.model }
   })
 
+  const minAgeDate = new Date();
+  minAgeDate.setFullYear(minAgeDate.getFullYear() - 16);
+
+
   let validated = false;
-  if(vehicles.length > 1 && vehicles.length <= 3 && areAllFieldsNonNull(data)) {
+  if(vehicles.length > 1 &&
+    vehicles.length <= 3 &&
+    areAllFieldsNonNull(data) &&
+    new Date(data.dob) <= minAgeDate &&
+    !isNaN(parseFloat(data.zip))) {
     validated = true
+  }
+
+  const minYear = 1985;
+  const maxYear = new Date().getFullYear() + 1; 
+  for(let vehicle of vehicles) {
+    if(vehicle.year < minYear || vehicle.year > maxYear) {
+      validated = false;
+    }
   }
 
   res.type('text/json')

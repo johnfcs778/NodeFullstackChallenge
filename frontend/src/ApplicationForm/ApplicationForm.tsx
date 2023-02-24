@@ -73,7 +73,7 @@ const ApplicationForm = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // Handle form submission
-    axios.post('api/v1/applications/price', formData)
+    axios.post('api/v1/applications/validate', formData)
     .then(response => {
       console.log(response.data)
     })
