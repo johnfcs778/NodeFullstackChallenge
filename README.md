@@ -10,3 +10,6 @@
 - CD to the frontend directory and run 'npm install' followed by `npm run start`
 - The backend api should be available at `localhost:5000/api/v1`
 - The frontend application should be available at `localhost:3000/application`
+
+## DEMO:
+[Video Demo]([https://duckduckgo.com](https://www.youtube.com/watch?v=aGyvDUow5nE))
