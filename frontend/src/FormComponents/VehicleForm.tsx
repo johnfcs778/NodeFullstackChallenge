@@ -5,41 +5,48 @@
 
 import React from 'react';
 import { Form } from 'react-bootstrap';
-import { Vehicle } from '../ApplicationForm/ApplicationForm';
+import { ApplicationFormData } from '../ApplicationForm/ApplicationForm';
 
 interface IVehicleFormProps {
+  vehicleIndex: number;
   vehicleNum: string;
-  handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  vehicle: Vehicle;
+  formData: ApplicationFormData;
+  handleFormChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+
 const VehicleForm = (props: IVehicleFormProps) => {
+
+  const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    props.handleFormChange(event);
+  };
+
   return (
-    <Form.Group controlId="vehicle1">
+    <Form.Group controlId={(props.vehicleIndex+1).toString()}>
       <Form.Label>{props.vehicleNum}</Form.Label>
       <Form.Control
         type="text"
-        placeholder={props.vehicleNum + "vin"}
-        value={props.vehicle.vin}
-        onChange={props.handleChange}
+        placeholder={props.vehicleNum + " vin"}
+        value={props.formData.vehicles[props.vehicleIndex].vin}
+        onChange={handleFormChange}
       />
       <Form.Control
         type="text"
-        placeholder={props.vehicleNum + "year"}
-        value={props.vehicle.year}
-        onChange={props.handleChange}
+        placeholder={props.vehicleNum + " year"}
+        value={props.formData.vehicles[props.vehicleIndex].year}
+        onChange={handleFormChange}
       />
       <Form.Control
         type="text"
-        placeholder={props.vehicleNum + "make"}
-        value={props.vehicle.make}
-        onChange={props.handleChange}
+        placeholder={props.vehicleNum + " make"}
+        value={props.formData.vehicles[props.vehicleIndex].make}
+        onChange={handleFormChange}
       />
       <Form.Control
         type="text"
-        placeholder={props.vehicleNum + "model"}
-        value={props.vehicle.model}
-        onChange={props.handleChange}
+        placeholder={props.vehicleNum + " model"}
+        value={props.formData.vehicles[props.vehicleIndex].model}
+        onChange={handleFormChange}
       />
     </Form.Group>
   );

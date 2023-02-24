@@ -58,7 +58,7 @@ router.post('/applications', async (req, res) => {
 });
 
 /**
- * POST API endpoint to valdiate a started applicationa and return a quote price
+ * POST API endpoint to valdiate a started application and return a quote price
  */
 router.post('/applications/validate', async (req, res) => {
   const data = req.body;
@@ -89,7 +89,7 @@ router.post('/applications/validate', async (req, res) => {
   }
 
   res.type('text/json')
-  res.send({ "Quote Price": Math.floor(Math.random() * 1000) + 1, "Validated": validated });
+  res.send({ "QuotePrice": Math.floor(Math.random() * 1000) + 1, "Validated": validated });
 
 });
 

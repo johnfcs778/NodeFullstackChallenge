@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Form, Button, Container } from 'react-bootstrap';
+import { Form, Button, Container, Alert } from 'react-bootstrap';
 import VehicleForm from '../FormComponents/VehicleForm';
 import axios from 'axios';
 
@@ -16,7 +16,7 @@ export interface Vehicle {
   model: string;
 }
 
-interface ApplicationFormData {
+export interface ApplicationFormData {
   firstName: string;
   lastName: string;
   dob: string;
@@ -28,7 +28,26 @@ interface ApplicationFormData {
 }
 
 const ApplicationForm = () => {
+
+  // Application Component State initialization
   const [searchParams] = useSearchParams();
+  const [showSuccess, setShowSuccess] = useState('');
+  const [quotePrice, setQuotePrice] = useState(0);
+  const [formData, setFormData] = useState<ApplicationFormData>({
+    firstName: searchParams.get('firstName') || '',
+    lastName: searchParams.get('lastName') || '',
+    dob: searchParams.get('dob') || '',
+    street: searchParams.get('street') || '',
+    city: searchParams.get('city') || '',
+    state: searchParams.get('state') || '',
+    zip: searchParams.get('zipCode') || '',
+    vehicles: [
+      { vin: "", year: "", make: "", model: "" },
+      { vin: "", year: "", make: "", model: "" },
+      { vin: "", year: "", make: "", model: "" }
+    ]
+  });
+  const [formValid, setFormValid] = useState(false);
 
   // On application load, instead of passing all vehicle data in through the URL, 
   // using the vehicle ids in the URL, load the vehicle data into the form on component load
@@ -50,22 +69,10 @@ const ApplicationForm = () => {
     }
   }, [])
 
-  // State for the form data
-  const [formData, setFormData] = useState<ApplicationFormData>({
-    firstName: searchParams.get('firstName') || '',
-    lastName: searchParams.get('lastName') || '',
-    dob: searchParams.get('dob') || '',
-    street: searchParams.get('street') || '',
-    city: searchParams.get('city') || '',
-    state: searchParams.get('state') || '',
-    zip: searchParams.get('zipCode') || '',
-    vehicles: [
-      { vin: "", year: "", make: "", model: "" },
-      { vin: "", year: "", make: "", model: "" },
-      { vin: "", year: "", make: "", model: "" }
-    ]
-  });
-  const [formValid, setFormValid] = useState(false);
+  // Event Handlers
+  const handleHideSuccess = () => {
+    setShowSuccess('');
+  }
 
   const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = event.target;
@@ -73,12 +80,39 @@ const ApplicationForm = () => {
     setFormValid(validateForm());
   };
 
+  const handleVehicleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = event.target;
+    const prevVehicles: Vehicle[] = formData.vehicles;
+    const vehicleProperty = event.target.placeholder.split(' ')[2];
+    switch (vehicleProperty) {
+      case 'vin':
+        prevVehicles[parseInt(id)-1].vin = value;
+        break;
+      case 'year':
+        prevVehicles[parseInt(id)-1].year = value;
+        break;
+      case 'make':
+        prevVehicles[parseInt(id)-1].make = value;
+        break;
+      case 'model':
+        prevVehicles[parseInt(id)-1].model = value;
+        break;
+    }
+    setFormData({...formData, vehicles: prevVehicles})
+
+  }
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // Handle form submission, validate the application and return the price
     axios.post('api/v1/applications/validate', formData)
       .then(response => {
-        console.log(response.data)
+        if(response.data.Validated) {
+          setShowSuccess('true');
+          setQuotePrice(response.data.QuotePrice)
+        } else {
+          setShowSuccess('false')
+        }
       })
       .catch(error => {
         console.log(error);
@@ -100,6 +134,21 @@ const ApplicationForm = () => {
 
   return (
     <Container className="my-4 p-4 border rounded">
+        {showSuccess !== '' && showSuccess === 'true' && 
+        <Alert variant="success" onClose={handleHideSuccess} dismissible>
+          <Alert.Heading>Success!</Alert.Heading>
+          <p>
+            Your application has been validated! Quote Price: {quotePrice}
+          </p>
+        </Alert>
+       }{showSuccess !== '' && showSuccess === 'false' && 
+        <Alert variant="danger" onClose={handleHideSuccess} dismissible>
+          <Alert.Heading>Error!</Alert.Heading>
+          <p>
+            There was a problem with your application
+          </p>
+        </Alert>
+      }
       <h2 className="text-center mb-4">Application Form</h2>
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="firstName">
@@ -165,9 +214,9 @@ const ApplicationForm = () => {
             onChange={handleFormChange}
           />
         </Form.Group>
-        <VehicleForm vehicleNum='Vehicle 1' vehicle={formData.vehicles[0]} handleChange={handleFormChange} />
-        <VehicleForm vehicleNum='Vehicle 2' vehicle={formData.vehicles[1]} handleChange={handleFormChange} />
-        <VehicleForm vehicleNum='Vehicle 3' vehicle={formData.vehicles[2]} handleChange={handleFormChange} />
+        <VehicleForm vehicleNum='Vehicle 1' vehicleIndex={0} formData={formData} handleFormChange={handleVehicleFormChange} />
+        <VehicleForm vehicleNum='Vehicle 2' vehicleIndex={1} formData={formData} handleFormChange={handleVehicleFormChange} />
+        <VehicleForm vehicleNum='Vehicle 3' vehicleIndex={2} formData={formData} handleFormChange={handleVehicleFormChange} />
         <div className="d-flex justify-content-center">
           <Button type="submit" disabled={!formValid}>
             Submit
