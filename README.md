@@ -23,7 +23,7 @@ POST api/v1/applications
     "lastName": "Fahnestock",
     "dob": "1996-01-30",
     "street": "123 test lane",
-    "city": "TESTUPDATE",
+    "city": "Pittsburgh",
     "zipCode": "15203",
     "state": "Pennsylvania",
     "vehicles": [
