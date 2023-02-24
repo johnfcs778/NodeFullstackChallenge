@@ -5,7 +5,7 @@
     zipCode: string;
   }
   
-  interface Vehicle {
+  export interface Vehicle {
     vin: string;
     year: number;
     make: string;
@@ -17,14 +17,14 @@
     private lastName: string;
     private dob: Date;
     private address: Address;
-    //private vehicles: Vehicle[];
+    private vehicles: string[];
   
-    constructor(firstName: string, lastName: string, dob: Date, address: Address) {
+    constructor(firstName: string, lastName: string, dob: Date, address: Address, vehicles: string[]) {
       this.firstName = firstName;
       this.lastName = lastName;
       this.dob = dob;
       this.address = address;
-      //this.vehicles = vehicles;
+      this.vehicles = vehicles;
     }
   
     getFirstName(): string {
@@ -59,13 +59,13 @@
       this.address = address;
     }
   
-    // getVehicles(): Vehicle[] {
-    //   return this.vehicles;
-    // }
+    getVehicles(): string[] {
+      return this.vehicles;
+    }
   
-    // setVehicles(vehicles: Vehicle[]): void {
-    //   this.vehicles = vehicles;
-    // }
+    setVehicles(vehicles: string[]): void {
+      this.vehicles = vehicles;
+    }
   }
   
   export default ApplicationModel;
